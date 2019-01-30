@@ -11,7 +11,7 @@ import javax.swing.table.AbstractTableModel;
  *
  * @author Manuel Espinosa Torres
  */
-public class ClientTableModel extends AbstractTableModel {
+public class ClientTableModel1 extends AbstractTableModel {
 
     ArrayList clientData = new ArrayList<>();
     ArrayList auxClientData = new ArrayList<>();
@@ -24,11 +24,11 @@ public class ClientTableModel extends AbstractTableModel {
         java.lang.String.class, java.lang.String.class, java.lang.String.class
     };
 
-    public ClientTableModel() {
+    public ClientTableModel1() {
         try {
             clientData = (ArrayList<Client>) new ClientBLL().obtenirClients();
         } catch (Exception ex) {
-            Logger.getLogger(ClientTableModel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClientTableModel1.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -79,7 +79,7 @@ public class ClientTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int row, int col) {
-        return true;
+        return false;
     }
 
     @Override

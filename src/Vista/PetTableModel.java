@@ -27,7 +27,7 @@ public class PetTableModel extends AbstractTableModel {
         try {
             petData = (ArrayList<Pet>) new PetBLL().obtenirMascotes(codi_id);
         } catch (Exception ex) {
-            Logger.getLogger(ClientTableModel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClientTableModel1.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
