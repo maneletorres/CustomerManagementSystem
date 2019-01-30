@@ -181,7 +181,8 @@ public class ClientTableModel2 extends AbstractTableModel {
         }
     }
 
-    // Proves:
+    // Mètodes per a la búsqueda de clients:
+    // Alternative 1 (OK):
     public void updateData(String searchText) {
         // Primera lletra.
         if (auxClientData.isEmpty()) {
@@ -202,5 +203,15 @@ public class ClientTableModel2 extends AbstractTableModel {
         }
 
         fireTableDataChanged();
+    }
+
+    // Alternative 2:
+    public void performSearch(int selectedColum, String searchText) {
+        try {
+            clientData = (ArrayList<Client>) new ClientBLL().filterClients(selectedColum, searchText);
+            fireTableDataChanged();
+        } catch (Exception ex) {
+            Logger.getLogger(ClientTableModel2.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

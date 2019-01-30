@@ -379,7 +379,22 @@ public class JInternalFrame3 extends JInternalFrame {
     }//GEN-LAST:event_animaletJButtonActionPerformed
 
     private void buscaJTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaJTextFieldKeyReleased
-        miModelo.updateData(buscaJTextField.getText());
+        // Alternativa 1 (OK):
+        //miModelo.updateData(buscaJTextField.getText());
+
+        // Alternativa 2:
+        int selectedColumn = clientJTableForm.getSelectedColumn();
+        if (selectedColumn != -1 && lastColumnSelected == -1) {
+            miModelo.performSearch(selectedColumn, buscaJTextField.getText());
+            lastColumnSelected = selectedColumn;
+        } else if (lastColumnSelected != -1) {
+            if (selectedColumn != -1 && selectedColumn != lastColumnSelected) {
+                miModelo.performSearch(selectedColumn, buscaJTextField.getText());
+                lastColumnSelected = selectedColumn;
+            } else {
+                miModelo.performSearch(lastColumnSelected, buscaJTextField.getText());
+            }
+        }
     }//GEN-LAST:event_buscaJTextFieldKeyReleased
 
     public void fillForm(Client c) {
@@ -494,4 +509,5 @@ public class JInternalFrame3 extends JInternalFrame {
     private ClientTableModel2 miModelo;
     private TableSorter modeloOrdenado;
     private JDialog petJDialog;
+    private int lastColumnSelected = -1;
 }

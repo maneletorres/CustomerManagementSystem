@@ -62,4 +62,15 @@ public class ClientBLL {
             throw ex;
         }
     }
+
+    public ArrayList<Client> filterClients(int selectedColumn, String searchText) throws Exception {
+        try {
+            ClientDAO cdao = new ClientDAO();
+            return cdao.filterClients(selectedColumn, searchText);
+        } catch (SQLException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
 }

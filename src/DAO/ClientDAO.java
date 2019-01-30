@@ -114,4 +114,47 @@ public class ClientDAO extends Connexio {
 
         return true;
     }
+
+    public ArrayList<Client> filterClients(int selectedColumn, String searchText) throws Exception {
+        ArrayList<Client> llistaClients = new ArrayList<>();
+        try {
+            String columnToSearch = "";
+            switch (selectedColumn) {
+                case 0:
+                    columnToSearch = "dni";
+                    break;
+                case 1:
+                    columnToSearch = "nom";
+                    break;
+                case 2:
+                    columnToSearch = "carrer";
+                    break;
+                case 3:
+                    columnToSearch = "codi_postal";
+                    break;
+                case 4:
+                    columnToSearch = "n_de_portal";
+                    break;
+            }
+
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery("SELECT * FROM client WHERE " + columnToSearch + " LIKE '%" + searchText + "%'; ");
+
+            while (resultSet.next()) {
+                Client c = new Client();
+                c.setCodi_id(resultSet.getString("codi_id"));
+                c.setDni(resultSet.getString("dni"));
+                c.setNom(resultSet.getString("nom"));
+                c.setCarrer(resultSet.getString("carrer"));
+                c.setCodi_postal(resultSet.getString("codi_postal"));
+                c.setN_de_portal(resultSet.getString("n_de_portal"));
+
+                llistaClients.add(c);
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex);
+            throw new Exception("Error obtenint Clients");
+        }
+        return llistaClients;
+    }
 }

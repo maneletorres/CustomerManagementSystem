@@ -174,7 +174,22 @@ public class JInternalFrame2 extends JInternalFrame {
     }//GEN-LAST:event_deleteClientButtonActionPerformed
 
     private void buscaJTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaJTextFieldKeyReleased
-        miModelo.updateData(buscaJTextField.getText());
+        // Alternative 1 (OK):
+        //miModelo.updateData(buscaJTextField.getText());
+
+        // Alternative 2:
+        int selectedColumn = clientJTableForm.getSelectedColumn();
+        if (selectedColumn != -1 && lastColumnSelected == -1) {
+            miModelo.performSearch(selectedColumn, buscaJTextField.getText());
+            lastColumnSelected = selectedColumn;
+        } else if (lastColumnSelected != -1) {
+            if (selectedColumn != -1 && selectedColumn != lastColumnSelected) {
+                miModelo.performSearch(selectedColumn, buscaJTextField.getText());
+                lastColumnSelected = selectedColumn;
+            } else {
+                miModelo.performSearch(lastColumnSelected, buscaJTextField.getText());
+            }
+        }
     }//GEN-LAST:event_buscaJTextFieldKeyReleased
 
     /**
@@ -284,4 +299,5 @@ public class JInternalFrame2 extends JInternalFrame {
     // End of variables declaration//GEN-END:variables
     private ClientTableModel2 miModelo;
     private TableSorter modeloOrdenado;
+    private int lastColumnSelected = -1;
 }
