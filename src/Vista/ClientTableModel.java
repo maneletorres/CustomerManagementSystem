@@ -17,7 +17,7 @@ public class ClientTableModel extends AbstractTableModel {
     ArrayList clientData = new ArrayList<>();
     ArrayList auxClientData = new ArrayList<>();
     String[] clientColumns = {
-        "DNI", "Nom", "Carrer", "Codi postal", "Nº de portal"
+        "Codi ID", "DNI", "Nom", "Carrer", "Codi postal", "Nº de portal"
     };
 
     Class[] types = new Class[]{
@@ -51,23 +51,27 @@ public class ClientTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
+        System.out.println("getValueAt");
         Client client = (Client) clientData.get(row);
 
         Object result = null;
         switch (col) {
             case 0:
-                result = client.getDni();
+                result = client.getCodi_id();
                 break;
             case 1:
-                result = client.getNom();
+                result = client.getDni();
                 break;
             case 2:
-                result = client.getCarrer();
+                result = client.getNom();
                 break;
             case 3:
-                result = client.getCodi_postal();
+                result = client.getCarrer();
                 break;
             case 4:
+                result = client.getCodi_postal();
+                break;
+            case 5:
                 result = client.getN_de_portal();
                 break;
         }
@@ -86,6 +90,7 @@ public class ClientTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object value, int row, int col) {
+        System.out.println("setValueAt");
         Client client = (Client) clientData.get(row);
 
         if (client.getCodi_id() == null) { // INSERT
@@ -94,19 +99,19 @@ public class ClientTableModel extends AbstractTableModel {
                 client.setCodi_id(cbll.maxCodi());
 
                 switch (col) {
-                    case 0:
+                    case 1:
                         client.setDni(value.toString());
                         break;
-                    case 1:
+                    case 2:
                         client.setNom(value.toString());
                         break;
-                    case 2:
+                    case 3:
                         client.setCarrer(value.toString());
                         break;
-                    case 3:
+                    case 4:
                         client.setCodi_postal(value.toString());
                         break;
-                    case 4:
+                    case 5:
                         client.setN_de_portal(value.toString());
                         break;
                 }
@@ -118,19 +123,19 @@ public class ClientTableModel extends AbstractTableModel {
         } else { // UPDATE
             try {
                 switch (col) {
-                    case 0:
+                    case 1:
                         client.setDni(value.toString());
                         break;
-                    case 1:
+                    case 2:
                         client.setNom(value.toString());
                         break;
-                    case 2:
+                    case 3:
                         client.setCarrer(value.toString());
                         break;
-                    case 3:
+                    case 4:
                         client.setCodi_postal(value.toString());
                         break;
-                    case 4:
+                    case 5:
                         client.setN_de_portal(value.toString());
                         break;
                 }
@@ -184,7 +189,7 @@ public class ClientTableModel extends AbstractTableModel {
     }
 
     // Mètodes per a la búsqueda de clients:
-    // Alternative 1 (OK):
+    // Alternative 1:
     public void updateData(String searchText) {
         // Primera lletra.
         if (auxClientData.isEmpty()) {

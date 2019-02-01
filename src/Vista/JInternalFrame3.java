@@ -376,7 +376,7 @@ public class JInternalFrame3 extends JInternalFrame {
     private void animaletJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_animaletJButtonActionPerformed
         String codi_client = codiJTextField.getText();
         if (!codi_client.equals("")) {
-            // Alternativa JInternalFrame:
+            // Alternativa JInternalFrame (falta per implementar el bloqueig de l'element pare):
             /*PetJInternalFrame internalFrame = new PetJInternalFrame(codi_client, animaletJTextField);
             jDesktopPane1.add(internalFrame);
 
@@ -413,17 +413,16 @@ public class JInternalFrame3 extends JInternalFrame {
                 }
             });
 
-            //petJDialog.pack();
             petJDialog.setSize(new Dimension(400, 200));
             petJDialog.setVisible(true);
         }
     }//GEN-LAST:event_animaletJButtonActionPerformed
 
     private void buscaJTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaJTextFieldKeyReleased
-        // Alternativa 1 (OK):
+        // Alternative 1:
         //miModelo.updateData(buscaJTextField.getText());
 
-        // Alternativa 2:
+        // Alternative 2:
         lastSelectedRow = -1;
         int selectedColumn = clientJTableForm.getSelectedColumn();
         if (selectedColumn != -1 && lastSelectedColumn == -1) {
@@ -466,7 +465,6 @@ public class JInternalFrame3 extends JInternalFrame {
 
     public void removeClientSelection() {
         lastSelectedRow = -1;
-        //lastSelectedColumn = -1;
     }
 
     /**

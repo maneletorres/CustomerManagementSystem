@@ -199,7 +199,7 @@ public class JInternalFrame2 extends JInternalFrame {
     }//GEN-LAST:event_deleteClientButtonActionPerformed
 
     private void buscaJTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaJTextFieldKeyReleased
-        // Alternative 1 (OK):
+        // Alternative 1:
         //miModelo.updateData(buscaJTextField.getText());
 
         // Alternative 2:
@@ -247,7 +247,6 @@ public class JInternalFrame2 extends JInternalFrame {
 
     public void removeClientSelection() {
         lastSelectedRow = -1;
-        //lastSelectedColumn = -1;
     }
 
     /**

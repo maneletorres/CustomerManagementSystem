@@ -288,10 +288,10 @@ public class JInternalFrame1 extends JInternalFrame {
     }//GEN-LAST:event_resetButtonActionPerformed
 
     private void buscaJTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaJTextFieldKeyReleased
-        // Alternativa 1 (OK):
+        // Alternative 1:
         //miModelo.updateData(buscaJTextField.getText());
 
-        // Alternativa 2:
+        // Alternative 2:
         lastSelectedRow = -1;
         int selectedColumn = clientJTableForm.getSelectedColumn();
         if (selectedColumn != -1 && lastSelectedColumn == -1) {
@@ -315,7 +315,6 @@ public class JInternalFrame1 extends JInternalFrame {
 
         if (clientJTableForm.getSelectedColumn() != lastSelectedColumn) {
             lastSelectedColumn = clientJTableForm.getSelectedColumn();
-            //miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
             miModelo.performSearch(lastSelectedColumn, "");
             buscaJTextField.setText("");
         }
@@ -363,7 +362,6 @@ public class JInternalFrame1 extends JInternalFrame {
 
     public void removeClientSelection() {
         lastSelectedRow = -1;
-        //lastSelectedColumn = -1;
     }
 
     /**
