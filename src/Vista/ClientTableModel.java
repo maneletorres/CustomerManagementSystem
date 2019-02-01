@@ -188,7 +188,7 @@ public class ClientTableModel extends AbstractTableModel {
         }
     }
 
-    // Mètodes per a la búsqueda de clients:
+    // Mètodes per al filtrat de clients:
     // Alternative 1:
     public void updateData(String searchText) {
         // Primera lletra.

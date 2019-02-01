@@ -19,6 +19,7 @@ public class JInternalFrame2 extends JInternalFrame {
 
         super.setVisible(true);
         super.setClosable(true);
+        super.setTitle("Actualització directa");
         super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 

@@ -31,6 +31,7 @@ public class JInternalFrame3 extends JInternalFrame {
 
         super.setVisible(true);
         super.setClosable(true);
+        super.setTitle("Actualització completa");
         super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         // Element que s'encarrega de notificar quan una cel.la es modificada:

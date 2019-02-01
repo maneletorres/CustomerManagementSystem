@@ -1,5 +1,6 @@
 package Vista;
 
+import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -103,69 +104,41 @@ public class FinestraPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formUpdateJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formUpdateJMenuItemActionPerformed
-        if (!isWindowThrown) {
-            JInternalFrame1 clientJFrame1 = new JInternalFrame1();
-            clientJFrame1.setTitle("Actualització per formulari");
-            clientJFrame1.addInternalFrameListener(new InternalFrameAdapter() {
-                @Override
-                public void internalFrameClosed(InternalFrameEvent e) {
-                    isWindowThrown = false;
-                }
-
-            });
-            jDesktopPane1.add(clientJFrame1);
-
-            isWindowThrown = true;
-        } else {
-            showInfoDialog();
-        }
+        jInternalFrameCreation(new JInternalFrame1());
     }//GEN-LAST:event_formUpdateJMenuItemActionPerformed
 
     private void directUpdateJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_directUpdateJMenuItemActionPerformed
-        if (!isWindowThrown) {
-            JInternalFrame2 clientJFrame2 = new JInternalFrame2();
-            clientJFrame2.setTitle("Actualització directa");
-            clientJFrame2.addInternalFrameListener(new InternalFrameAdapter() {
-                @Override
-                public void internalFrameClosed(InternalFrameEvent e) {
-                    isWindowThrown = false;
-                }
-
-            });
-            jDesktopPane1.add(clientJFrame2);
-
-            isWindowThrown = true;
-        } else {
-            showInfoDialog();
-        }
+        jInternalFrameCreation(new JInternalFrame2());
     }//GEN-LAST:event_directUpdateJMenuItemActionPerformed
 
     private void fullUpdateJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fullUpdateJMenuItemActionPerformed
-        if (!isWindowThrown) {
-            JInternalFrame3 clientJFrame3 = new JInternalFrame3();
-            clientJFrame3.setTitle("Actualització completa");
-            clientJFrame3.addInternalFrameListener(new InternalFrameAdapter() {
-                @Override
-                public void internalFrameClosed(InternalFrameEvent e) {
-                    isWindowThrown = false;
-                }
-
-            });
-            jDesktopPane1.add(clientJFrame3);
-
-            isWindowThrown = true;
-        } else {
-            showInfoDialog();
-        }
+        jInternalFrameCreation(new JInternalFrame3());
     }//GEN-LAST:event_fullUpdateJMenuItemActionPerformed
 
     private void exitJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitJMenuItemActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitJMenuItemActionPerformed
 
+    public void jInternalFrameCreation(JInternalFrame jInternalFrame) {
+        if (!isWindowThrown) {
+            jInternalFrame.addInternalFrameListener(new InternalFrameAdapter() {
+                @Override
+                public void internalFrameClosed(InternalFrameEvent e) {
+                    isWindowThrown = false;
+                }
+
+            });
+            jDesktopPane1.add(jInternalFrame);
+
+            isWindowThrown = true;
+        } else {
+            showInfoDialog();
+        }
+    }
+
     public void showInfoDialog() {
         JOptionPane.showMessageDialog(this,
-                "No pots obrir una opció si ja roman oberta altra.", "Informació",
+                "No pots obrir una opció si ja roman oberta d'altra.", "Informació",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 

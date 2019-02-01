@@ -19,6 +19,7 @@ public class JInternalFrame1 extends JInternalFrame {
 
         super.setVisible(true);
         super.setClosable(true);
+        super.setTitle("Actualització per formulari");
         super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 
