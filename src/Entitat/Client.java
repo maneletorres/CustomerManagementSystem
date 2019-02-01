@@ -60,4 +60,15 @@ public class Client {
     public void setN_de_portal(String n_de_portal) {
         this.n_de_portal = n_de_portal;
     }
+
+    @Override
+    public String toString() {
+        String result = "Número ID: " + codi_id + "\n";
+        result += "D.N.I.: " + dni + "\n";
+        result += "Nom: " + nom + "\n";
+        result += "Carrer: " + carrer + "\n";
+        result += "Codi postal: " + codi_postal + "\n";
+        result += "Nº de portal: " + n_de_portal;
+        return result;
+    }
 }
