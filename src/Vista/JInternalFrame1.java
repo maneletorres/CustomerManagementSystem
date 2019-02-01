@@ -1,9 +1,12 @@
 package Vista;
 
 import Entitat.Client;
+import java.awt.Color;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
 
 /**
  *
@@ -33,8 +36,9 @@ public class JInternalFrame1 extends JInternalFrame {
         saveDataButton = new javax.swing.JButton();
         deleteClientButton = new javax.swing.JButton();
         jScrollPane8 = new javax.swing.JScrollPane();
-        miModelo = new Vista.ClientTableModel1();
+        miModelo = new Vista.ClientTableModel(false);
         modeloOrdenado = new TableSorter(miModelo);
+        renderer = new DefaultTableCellRenderer();
         clientJTableForm = new javax.swing.JTable();
         JTableHeader header2 = clientJTableForm.getTableHeader();
         modeloOrdenado.setTableHeader(header2);
@@ -252,31 +256,86 @@ public class JInternalFrame1 extends JInternalFrame {
         c.setCodi_postal(codiPostalJTextField.getText());
         c.setN_de_portal(nPortalJTextField.getText());
 
-        miModelo.addClient(c, clientJTableForm.getSelectedRow());
+        miModelo.addClient(c, lastSelectedRow);
+        deleteForm();
     }//GEN-LAST:event_saveDataButtonActionPerformed
 
     private void deleteClientButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteClientButtonActionPerformed
-        int selection = JOptionPane.showConfirmDialog(this,
-                "Estas segur d'eliminar aquest client?", "Eliminar",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.INFORMATION_MESSAGE);
+        if (lastSelectedRow != -1) {
+            Client c = (Client) miModelo.clientData.get(lastSelectedRow);
 
-        if (selection == JOptionPane.YES_OPTION) {
-            miModelo.removeRow(clientJTableForm.getSelectedRow());
-            deleteForm();
+            int selection = JOptionPane.showConfirmDialog(this,
+                    "Estas segur d'eliminar el següent client?\n\n" + c.toString(), "Eliminar",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            if (selection == JOptionPane.YES_OPTION) {
+                miModelo.removeRow(lastSelectedRow);
+
+                removeClientSelection();
+                deleteForm();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Selecciona un client per a la seua eliminació.", "Informació",
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }//GEN-LAST:event_deleteClientButtonActionPerformed
 
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
+        removeClientSelection();
         deleteForm();
     }//GEN-LAST:event_resetButtonActionPerformed
 
     private void buscaJTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaJTextFieldKeyReleased
-        miModelo.updateData(buscaJTextField.getText());
+        // Alternativa 1 (OK):
+        //miModelo.updateData(buscaJTextField.getText());
+
+        // Alternativa 2:
+        lastSelectedRow = -1;
+        int selectedColumn = clientJTableForm.getSelectedColumn();
+        if (selectedColumn != -1 && lastSelectedColumn == -1) {
+            miModelo.performSearch(selectedColumn, buscaJTextField.getText());
+            lastSelectedColumn = selectedColumn;
+        } else if (lastSelectedColumn != -1) {
+            if (selectedColumn != -1 && selectedColumn != lastSelectedColumn) {
+                miModelo.performSearch(selectedColumn, buscaJTextField.getText());
+                lastSelectedColumn = selectedColumn;
+            } else {
+                miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
+            }
+        }
     }//GEN-LAST:event_buscaJTextFieldKeyReleased
 
     private void clientJTableFormMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clientJTableFormMouseClicked
-        fillForm((Client) miModelo.clientData.get(clientJTableForm.getSelectedRow()));
+        int selectedRow = clientJTableForm.getSelectedRow();
+        if (selectedRow != lastSelectedRow) {
+            lastSelectedRow = selectedRow;
+        }
+
+        if (clientJTableForm.getSelectedColumn() != lastSelectedColumn) {
+            lastSelectedColumn = clientJTableForm.getSelectedColumn();
+            //miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
+            miModelo.performSearch(lastSelectedColumn, "");
+            buscaJTextField.setText("");
+        }
+
+        // Mantenim el focus sobre el registre corresponent:
+        clientJTableForm.requestFocus();
+        clientJTableForm.changeSelection(selectedRow, lastSelectedColumn, false, false);
+
+        renderer = new DefaultTableCellRenderer();
+        renderer.setBackground(Color.WHITE);
+        TableColumnModel tableColumnModel = clientJTableForm.getColumnModel();
+        for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
+            tableColumnModel.getColumn(i).setCellRenderer(renderer);
+        }
+
+        renderer = new DefaultTableCellRenderer();
+        renderer.setBackground(Color.LIGHT_GRAY);
+        clientJTableForm.getColumnModel().getColumn(lastSelectedColumn).setCellRenderer(renderer);
+
+        fillForm((Client) miModelo.clientData.get(lastSelectedRow));
     }//GEN-LAST:event_clientJTableFormMouseClicked
 
     public void fillForm(Client c) {
@@ -289,12 +348,22 @@ public class JInternalFrame1 extends JInternalFrame {
     }
 
     public void deleteForm() {
+        buscaJTextField.setText("");
         codiJTextField.setText("");
         dniJTextField.setText("");
         codiPostalJTextField.setText("");
         nomJTextField.setText("");
         carrerJTextField.setText("");
         nPortalJTextField.setText("");
+
+        if (lastSelectedColumn != -1) {
+            miModelo.performSearch(lastSelectedColumn, "");
+        }
+    }
+
+    public void removeClientSelection() {
+        lastSelectedRow = -1;
+        //lastSelectedColumn = -1;
     }
 
     /**
@@ -383,6 +452,9 @@ public class JInternalFrame1 extends JInternalFrame {
     private javax.swing.JButton resetButton;
     private javax.swing.JButton saveDataButton;
     // End of variables declaration//GEN-END:variables
-    private ClientTableModel1 miModelo;
+    private ClientTableModel miModelo;
+    private DefaultTableCellRenderer renderer;
     private TableSorter modeloOrdenado;
+    private int lastSelectedRow = -1;
+    private int lastSelectedColumn = 1;
 }

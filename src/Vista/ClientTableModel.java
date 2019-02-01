@@ -11,8 +11,9 @@ import javax.swing.table.AbstractTableModel;
  *
  * @author Manuel Espinosa Torres
  */
-public class ClientTableModel1 extends AbstractTableModel {
+public class ClientTableModel extends AbstractTableModel {
 
+    private boolean isCellEditable;
     ArrayList clientData = new ArrayList<>();
     ArrayList auxClientData = new ArrayList<>();
     String[] clientColumns = {
@@ -24,11 +25,12 @@ public class ClientTableModel1 extends AbstractTableModel {
         java.lang.String.class, java.lang.String.class, java.lang.String.class
     };
 
-    public ClientTableModel1() {
+    public ClientTableModel(boolean isCellEditable) {
         try {
+            this.isCellEditable = isCellEditable;
             clientData = (ArrayList<Client>) new ClientBLL().obtenirClients();
         } catch (Exception ex) {
-            Logger.getLogger(ClientTableModel1.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClientTableModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -79,7 +81,7 @@ public class ClientTableModel1 extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int row, int col) {
-        return false;
+        return isCellEditable;
     }
 
     @Override
@@ -153,7 +155,7 @@ public class ClientTableModel1 extends AbstractTableModel {
                 clientData.add(client);
                 fireTableDataChanged();
             } catch (Exception ex) {
-                System.out.println("No s'ha pogut inserir el client.");
+                System.out.println("No s'ha pogut inserir el client. ERROR: " + ex.getMessage());
             }
         } else {
             try {
@@ -163,7 +165,7 @@ public class ClientTableModel1 extends AbstractTableModel {
                 clientData.add(row, client);
                 fireTableDataChanged();
             } catch (Exception ex) {
-                System.out.println("No s'ha pogut actualitzar el client.");
+                System.out.println("No s'ha pogut actualitzar el client. ERROR: " + ex.getMessage());
             }
         }
     }
@@ -177,11 +179,12 @@ public class ClientTableModel1 extends AbstractTableModel {
             clientData.remove(client);
             fireTableDataChanged();
         } catch (Exception ex) {
-            System.out.println("No s'ha pogut eliminar el client.");
+            System.out.println("No s'ha pogut eliminar el client. ERROR: " + ex.getMessage());
         }
     }
 
-    // Proves:
+    // Mètodes per a la búsqueda de clients:
+    // Alternative 1 (OK):
     public void updateData(String searchText) {
         // Primera lletra.
         if (auxClientData.isEmpty()) {
@@ -202,5 +205,15 @@ public class ClientTableModel1 extends AbstractTableModel {
         }
 
         fireTableDataChanged();
+    }
+
+    // Alternative 2:
+    public void performSearch(int selectedColumn, String searchText) {
+        try {
+            clientData = (ArrayList<Client>) new ClientBLL().filterClients(selectedColumn, searchText);
+            fireTableDataChanged();
+        } catch (Exception ex) {
+            Logger.getLogger(ClientTableModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
