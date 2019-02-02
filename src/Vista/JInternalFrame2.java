@@ -4,6 +4,8 @@ import Entitat.Client;
 import java.awt.Color;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
@@ -21,6 +23,20 @@ public class JInternalFrame2 extends JInternalFrame {
         super.setClosable(true);
         super.setTitle("Actualització directa");
         super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        // Element que s'encarrega de notificar quan una cel.la és modificada:
+        CellEditorListener changeNotifier = new CellEditorListener() {
+            @Override
+            public void editingCanceled(ChangeEvent e) {
+            }
+
+            @Override
+            public void editingStopped(ChangeEvent e) {
+                isEditing = false;
+            }
+        };
+
+        clientJTableForm.getDefaultEditor(String.class).addCellEditorListener(changeNotifier);
     }
 
     /**
@@ -62,10 +78,15 @@ public class JInternalFrame2 extends JInternalFrame {
             }
         });
 
+        clientJTableForm.setAutoCreateRowSorter(true);
+        tableColumnModel = clientJTableForm.getColumnModel();
         clientJTableForm.setModel(modeloOrdenado);
         clientJTableForm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 clientJTableFormMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                clientJTableFormMousePressed(evt);
             }
         });
         jScrollPane8.setViewportView(clientJTableForm);
@@ -168,34 +189,63 @@ public class JInternalFrame2 extends JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addClientButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addClientButtonActionPerformed
-        Client c = new Client();
-        c.setNom("");
-        c.setDni("");
-        c.setCarrer("");
-        c.setCodi_postal("");
-        c.setN_de_portal("");
+        if (isEditing) {
+            JOptionPane.showMessageDialog(this,
+                    "No pots afegir un client mentre estàs editant una cel.la.", "Informació",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            Client c = new Client();
+            c.setNom("");
+            c.setDni("");
+            c.setCarrer("");
+            c.setCodi_postal("");
+            c.setN_de_portal("");
 
-        miModelo.addClient(c, lastSelectedRow);
+            miModelo.addClient(c, lastSelectedRow);
+            if (lastSelectedColumn != -1) {
+                miModelo.performSearch(lastSelectedColumn, "");
+            }
+
+            buscaJTextField.setText("");
+
+            // Borrem la selecció de l'últim registre:
+            lastSelectedRow = -1;
+        }
     }//GEN-LAST:event_addClientButtonActionPerformed
 
     private void deleteClientButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteClientButtonActionPerformed
-        if (lastSelectedRow != -1) {
-            Client c = (Client) miModelo.clientData.get(lastSelectedRow);
-
-            int selection = JOptionPane.showConfirmDialog(this,
-                    "Estas segur d'eliminar el següent client?\n\n" + c.toString(), "Eliminar",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.INFORMATION_MESSAGE);
-
-            if (selection == JOptionPane.YES_OPTION) {
-                miModelo.removeRow(lastSelectedRow);
-
-                removeClientSelection();
-            }
-        } else {
+        if (isEditing) {
             JOptionPane.showMessageDialog(this,
-                    "Selecciona un client per a la seua eliminació.", "Informació",
+                    "No pots borrar un client mentre estàs editant una cel.la.", "Informació",
                     JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            if (lastSelectedRow != -1) {
+                Client c = (Client) miModelo.clientData.get(lastSelectedRow);
+
+                int selection = JOptionPane.showConfirmDialog(this,
+                        "Estas segur d'eliminar el següent client?\n\n" + c.toString(), "Eliminar",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE);
+
+                if (selection == JOptionPane.YES_OPTION) {
+                    miModelo.removeRow(lastSelectedRow);
+
+                    // Açò ens permetrà desplaçar-nos a la nova columna polsada i
+                    // carregar de nou totes les dades des de cero per poder iniciar
+                    // una nova búsqueda:
+                    if (lastSelectedColumn != -1) {
+                        miModelo.performSearch(lastSelectedColumn, "");
+                    }
+                    buscaJTextField.setText("");
+
+                    // Borrem la selecció de l'últim registre:
+                    lastSelectedRow = -1;
+                }
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Selecciona un client per a la seua eliminació.", "Informació",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
         }
     }//GEN-LAST:event_deleteClientButtonActionPerformed
 
@@ -204,50 +254,59 @@ public class JInternalFrame2 extends JInternalFrame {
         //miModelo.updateData(buscaJTextField.getText());
 
         // Alternative 2:
-        int selectedColumn = clientJTableForm.getSelectedColumn();
-        if (selectedColumn != -1 && lastSelectedColumn == -1) {
-            miModelo.performSearch(selectedColumn, buscaJTextField.getText());
-            lastSelectedColumn = selectedColumn;
-        } else if (lastSelectedColumn != -1) {
-            if (selectedColumn != -1 && selectedColumn != lastSelectedColumn) {
-                miModelo.performSearch(selectedColumn, buscaJTextField.getText());
-                lastSelectedColumn = selectedColumn;
-            } else {
-                miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
-            }
-        }
+        lastSelectedRow = -1;
+        miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
     }//GEN-LAST:event_buscaJTextFieldKeyReleased
+
+    private void clientJTableFormMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clientJTableFormMousePressed
+        if (evt.getClickCount() == 2) {
+            isEditing = true;
+        }
+    }//GEN-LAST:event_clientJTableFormMousePressed
 
     private void clientJTableFormMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clientJTableFormMouseClicked
         int selectedRow = clientJTableForm.getSelectedRow();
+        int selectedColumn = clientJTableForm.getSelectedColumn();
+
+        // Si polsem sobre una fila diferent a la última fila polsada...:
         if (selectedRow != lastSelectedRow) {
+            // ... la última fila polsada serà la fila que acabem de polsar.
             lastSelectedRow = selectedRow;
         }
 
-        if (clientJTableForm.getSelectedColumn() != lastSelectedColumn) {
-            lastSelectedColumn = clientJTableForm.getSelectedColumn();
+        // Si polsem cobre una columna diferent a la última columna polsada...:
+        if (selectedColumn != lastSelectedColumn) {
+            // ... la última columna polsada serà la columna que acabem de polsar.
+            lastSelectedColumn = selectedColumn;
+
+            // Açò ens permetrà desplaçar-nos a la nova columna polsada i
+            // carregar de nou totes les dades des de cero per poder iniciar
+            // una nova búsqueda:
             miModelo.performSearch(lastSelectedColumn, "");
             buscaJTextField.setText("");
+
+            // Modifiquem el color del fons de les columnes segons quina estigui
+            // seleccionada:
+            paintColumns(selectedColumn);
         }
 
-        // Mantenim el focus sobre el registre corresponent:
+        // Mantenim el focus sobre el registre seleccionat:
         clientJTableForm.requestFocus();
-        clientJTableForm.changeSelection(selectedRow, lastSelectedColumn, false, false);
-
-        renderer = new DefaultTableCellRenderer();
-        renderer.setBackground(Color.WHITE);
-        TableColumnModel tableColumnModel = clientJTableForm.getColumnModel();
-        for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
-            tableColumnModel.getColumn(i).setCellRenderer(renderer);
-        }
-
-        renderer = new DefaultTableCellRenderer();
-        renderer.setBackground(Color.LIGHT_GRAY);
-        clientJTableForm.getColumnModel().getColumn(lastSelectedColumn).setCellRenderer(renderer);
+        clientJTableForm.changeSelection(selectedRow, selectedColumn, false, false);
     }//GEN-LAST:event_clientJTableFormMouseClicked
 
-    public void removeClientSelection() {
-        lastSelectedRow = -1;
+    public void paintColumns(int selectedColumn) {
+        for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
+            renderer = new DefaultTableCellRenderer();
+
+            if (i == selectedColumn) {
+                renderer.setBackground(Color.LIGHT_GRAY);
+            } else {
+                renderer.setBackground(Color.WHITE);
+            }
+
+            tableColumnModel.getColumn(i).setCellRenderer(renderer);
+        }
     }
 
     /**
@@ -269,71 +328,6 @@ public class JInternalFrame2 extends JInternalFrame {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(JInternalFrame2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -358,6 +352,8 @@ public class JInternalFrame2 extends JInternalFrame {
     private ClientTableModel miModelo;
     private DefaultTableCellRenderer renderer;
     private TableSorter modeloOrdenado;
+    private TableColumnModel tableColumnModel;
     private int lastSelectedRow = -1;
-    private int lastSelectedColumn = -1;
+    private int lastSelectedColumn = 2;
+    private boolean isEditing = false;
 }
