@@ -34,15 +34,15 @@ public class JInternalFrame3 extends JInternalFrame {
         super.setTitle("Actualització completa");
         super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        // Element que s'encarrega de notificar quan una cel.la es modificada:
+        // Element que s'encarrega de notificar quan una cel.la és modificada:
         CellEditorListener changeNotifier = new CellEditorListener() {
             @Override
             public void editingCanceled(ChangeEvent e) {
-                //
             }
 
             @Override
             public void editingStopped(ChangeEvent e) {
+                isEditing = false;
                 fillForm((Client) miModelo.clientData.get(lastSelectedRow));
             }
         };
@@ -106,9 +106,13 @@ public class JInternalFrame3 extends JInternalFrame {
         });
 
         clientJTableForm.setModel(modeloOrdenado);
+        tableColumnModel = clientJTableForm.getColumnModel();
         clientJTableForm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 clientJTableFormMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                clientJTableFormMousePressed(evt);
             }
         });
         jScrollPane8.setViewportView(clientJTableForm);
@@ -301,121 +305,150 @@ public class JInternalFrame3 extends JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void saveDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveDataButtonActionPerformed
-        Client c = new Client();
+        if (isEditing) {
+            JOptionPane.showMessageDialog(this,
+                    "No pots afegir un client mentre estàs editant una cel.la.", "Informació",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            Client c = new Client();
 
-        if (!codiJTextField.getText().equals("")) {
-            c.setCodi_id(codiJTextField.getText());
+            if (!codiJTextField.getText().equals("")) {
+                c.setCodi_id(codiJTextField.getText());
+            }
+
+            c.setNom(nomJTextField.getText());
+            c.setDni(dniJTextField.getText());
+            c.setCarrer(carrerJTextField.getText());
+            c.setCodi_postal(codiPostalJTextField.getText());
+            c.setN_de_portal(nPortalJTextField.getText());
+
+            miModelo.addClient(c, lastSelectedRow);
+            deleteForm();
         }
-
-        c.setNom(nomJTextField.getText());
-        c.setDni(dniJTextField.getText());
-        c.setCarrer(carrerJTextField.getText());
-        c.setCodi_postal(codiPostalJTextField.getText());
-        c.setN_de_portal(nPortalJTextField.getText());
-
-        miModelo.addClient(c, lastSelectedRow);
-        deleteForm();
     }//GEN-LAST:event_saveDataButtonActionPerformed
 
     private void deleteClientButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteClientButtonActionPerformed
-        if (lastSelectedRow != -1) {
-            Client c = (Client) miModelo.clientData.get(lastSelectedRow);
-
-            int selection = JOptionPane.showConfirmDialog(this,
-                    "Estas segur d'eliminar el següent client?\n\n" + c.toString(), "Eliminar",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.INFORMATION_MESSAGE);
-
-            if (selection == JOptionPane.YES_OPTION) {
-                miModelo.removeRow(lastSelectedRow);
-
-                removeClientSelection();
-            }
-        } else {
+        if (isEditing) {
             JOptionPane.showMessageDialog(this,
-                    "Selecciona un client per a la seua eliminació.", "Informació",
+                    "No pots eliminar un client mentre estàs editant una cel.la.", "Informació",
                     JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            if (lastSelectedRow != -1) {
+                Client c = (Client) miModelo.clientData.get(lastSelectedRow);
+
+                int selection = JOptionPane.showConfirmDialog(this,
+                        "Estas segur d'eliminar el següent client?\n\n" + c.toString(), "Eliminar",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE);
+
+                if (selection == JOptionPane.YES_OPTION) {
+                    miModelo.removeRow(lastSelectedRow);
+                    deleteForm();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Selecciona un client per a la seua eliminació.", "Informació",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
         }
     }//GEN-LAST:event_deleteClientButtonActionPerformed
 
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
-        removeClientSelection();
-        deleteForm();
+        if (isEditing) {
+            JOptionPane.showMessageDialog(this,
+                    "No pots resetejar mentre estàs editant una cel.la.", "Informació",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            deleteForm();
+        }
     }//GEN-LAST:event_resetButtonActionPerformed
 
     private void clientJTableFormMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clientJTableFormMouseClicked
         int selectedRow = clientJTableForm.getSelectedRow();
+        int selectedColumn = clientJTableForm.getSelectedColumn();
+
+        // Si polsem sobre una fila diferent a la última fila polsada...:
         if (selectedRow != lastSelectedRow) {
+            // ... la última fila polsada serà la fila que acabem de polsar.
             lastSelectedRow = selectedRow;
+
+            // Omplim el formulari amb la informació del registre que hem polsat:
+            fillForm((Client) miModelo.clientData.get(lastSelectedRow));
         }
 
-        if (clientJTableForm.getSelectedColumn() != lastSelectedColumn) {
-            lastSelectedColumn = clientJTableForm.getSelectedColumn();
-            //miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
+        // Si polsem cobre una columna diferent a la última columna polsada...:
+        if (selectedColumn != lastSelectedColumn) {
+            // ... la última columna polsada serà la columna que acabem de polsar.
+            lastSelectedColumn = selectedColumn;
+
+            // Açò ens permetrà desplaçar-nos a la nova columna polsada i
+            // carregar de nou totes les dades des de cero per poder iniciar
+            // una nova búsqueda:
             miModelo.performSearch(lastSelectedColumn, "");
             buscaJTextField.setText("");
+
+            // Modifiquem el color del fons de les columnes segons quina estigui
+            // seleccionada:
+            paintColumns(selectedColumn);
         }
 
-        // Mantenim el focus sobre el registre corresponent:
+        // Mantenim el focus sobre el registre seleccionat:
         clientJTableForm.requestFocus();
-        clientJTableForm.changeSelection(selectedRow, lastSelectedColumn, false, false);
-
-        renderer = new DefaultTableCellRenderer();
-        renderer.setBackground(Color.WHITE);
-        TableColumnModel tableColumnModel = clientJTableForm.getColumnModel();
-        for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
-            tableColumnModel.getColumn(i).setCellRenderer(renderer);
-        }
-
-        renderer = new DefaultTableCellRenderer();
-        renderer.setBackground(Color.LIGHT_GRAY);
-        clientJTableForm.getColumnModel().getColumn(lastSelectedColumn).setCellRenderer(renderer);
-
-        fillForm((Client) miModelo.clientData.get(lastSelectedRow));
+        clientJTableForm.changeSelection(selectedRow, selectedColumn, false, false);
     }//GEN-LAST:event_clientJTableFormMouseClicked
 
     private void animaletJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_animaletJButtonActionPerformed
-        String codi_client = codiJTextField.getText();
-        if (!codi_client.equals("")) {
-            // Alternativa JInternalFrame (falta per implementar el bloqueig de l'element pare):
-            /*PetJInternalFrame internalFrame = new PetJInternalFrame(codi_client, animaletJTextField);
-            jDesktopPane1.add(internalFrame);
+        if (lastSelectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "No pots elegir una mascota si no tens seleccionat cap client.", "Informació",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else if (isEditing) {
+            JOptionPane.showMessageDialog(this,
+                    "No pots elegir una mascota mentre estàs editant una cel.la.", "Informació",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            String codi_client = codiJTextField.getText();
+            if (!codi_client.equals("")) {
+                // Alternativa JInternalFrame (falta per implementar el bloqueig de l'element pare):
+                /*PetJInternalFrame internalFrame = new PetJInternalFrame(codi_client, animaletJTextField);
+                jDesktopPane1.add(internalFrame);
 
-            try {
-                internalFrame.setSelected(true);
-            } catch (PropertyVetoException ex) {
-                Logger.getLogger(JInternalFrame3.class.getName()).log(Level.SEVERE, null, ex);
-            }*/
+                try {
+                    internalFrame.setSelected(true);
+                } catch (PropertyVetoException ex) {
+                    Logger.getLogger(JInternalFrame3.class.getName()).log(Level.SEVERE, null, ex);
+                }*/
 
-            // Alternativa JDialog:
-            final JTable table = new JTable();
+                // Alternativa JDialog:
+                final JTable table = new JTable();
 
-            JPanel jPanel = new JPanel();
-            jPanel.setLayout(new GridLayout());
-            JScrollPane sp = new JScrollPane(table);
-            jPanel.add(sp);
+                JPanel jPanel = new JPanel();
+                jPanel.setLayout(new GridLayout());
+                JScrollPane sp = new JScrollPane(table);
+                jPanel.add(sp);
 
-            petJDialog = new JDialog();
-            petJDialog.setTitle("Llista de mascotes");
-            petJDialog.setModal(true);
-            petJDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            petJDialog.setContentPane(jPanel);
+                petJDialog = new JDialog();
+                petJDialog.setTitle("Llista de mascotes");
+                petJDialog.setModal(true);
+                petJDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                petJDialog.setContentPane(jPanel);
 
-            final PetTableModel petModel = new Vista.PetTableModel(codi_client);
-            table.setModel(petModel);
-            table.addMouseListener(new java.awt.event.MouseAdapter() {
-                @Override
-                public void mouseClicked(java.awt.event.MouseEvent evt) {
-                    if (evt.getClickCount() == 2) {
-                        Pet pet = (Pet) petModel.petData.get(table.getSelectedRow());
-                        animaletJTextField.setText(pet.getNom());
-                        petJDialog.setVisible(false);
+                final PetTableModel petModel = new Vista.PetTableModel(codi_client);
+                table.setModel(petModel);
+                table.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent evt) {
+                        if (evt.getClickCount() == 2) {
+                            Pet pet = (Pet) petModel.petData.get(table.getSelectedRow());
+                            animaletJTextField.setText(pet.getNom());
+                            petJDialog.setVisible(false);
+                        }
                     }
-                }
-            });
+                });
 
-            petJDialog.setSize(new Dimension(400, 200));
-            petJDialog.setVisible(true);
+                petJDialog.setSize(new Dimension(400, 200));
+                petJDialog.setVisible(true);
+            }
         }
     }//GEN-LAST:event_animaletJButtonActionPerformed
 
@@ -424,20 +457,33 @@ public class JInternalFrame3 extends JInternalFrame {
         //miModelo.updateData(buscaJTextField.getText());
 
         // Alternative 2:
-        lastSelectedRow = -1;
-        int selectedColumn = clientJTableForm.getSelectedColumn();
-        if (selectedColumn != -1 && lastSelectedColumn == -1) {
-            miModelo.performSearch(selectedColumn, buscaJTextField.getText());
-            lastSelectedColumn = selectedColumn;
-        } else if (lastSelectedColumn != -1) {
-            if (selectedColumn != -1 && selectedColumn != lastSelectedColumn) {
-                miModelo.performSearch(selectedColumn, buscaJTextField.getText());
-                lastSelectedColumn = selectedColumn;
+        if (isEditing) {
+            int length = buscaJTextField.getText().length();
+
+            // Si hi havia text al buscador abans d'introduïr el nou caràcter,
+            // no deixarem afegir-ne més, però el text anterior es mantindrà:
+            if (length > 1) {
+                buscaJTextField.setText(buscaJTextField.getText().substring(0, length - 1));
+                // Si en canvi al buscador sols hi ha un caràcter (l'acabat
+                // d'introduïr), borrarem el contingut del buscador per complet:
             } else {
-                miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
+                buscaJTextField.setText("");
             }
+
+            JOptionPane.showMessageDialog(this,
+                    "No pots realitzar una búsqueda mentre estàs editant una cel.la.", "Informació",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            lastSelectedRow = -1;
+            miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
         }
     }//GEN-LAST:event_buscaJTextFieldKeyReleased
+
+    private void clientJTableFormMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clientJTableFormMousePressed
+        if (evt.getClickCount() == 2) {
+            isEditing = true;
+        }
+    }//GEN-LAST:event_clientJTableFormMousePressed
 
     public void fillForm(Client c) {
         animaletJTextField.setText("");
@@ -451,21 +497,34 @@ public class JInternalFrame3 extends JInternalFrame {
 
     public void deleteForm() {
         buscaJTextField.setText("");
-        animaletJTextField.setText("");
         codiJTextField.setText("");
         dniJTextField.setText("");
         codiPostalJTextField.setText("");
         nomJTextField.setText("");
         carrerJTextField.setText("");
         nPortalJTextField.setText("");
+        animaletJTextField.setText("");
 
         if (lastSelectedColumn != -1) {
             miModelo.performSearch(lastSelectedColumn, "");
         }
+
+        // Borrem la selecció de l'últim registre:
+        lastSelectedRow = -1;
     }
 
-    public void removeClientSelection() {
-        lastSelectedRow = -1;
+    public void paintColumns(int selectedColumn) {
+        for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
+            renderer = new DefaultTableCellRenderer();
+
+            if (i == selectedColumn) {
+                renderer.setBackground(Color.LIGHT_GRAY);
+            } else {
+                renderer.setBackground(Color.WHITE);
+            }
+
+            tableColumnModel.getColumn(i).setCellRenderer(renderer);
+        }
     }
 
     /**
@@ -560,7 +619,9 @@ public class JInternalFrame3 extends JInternalFrame {
     private ClientTableModel miModelo;
     private DefaultTableCellRenderer renderer;
     private TableSorter modeloOrdenado;
+    private TableColumnModel tableColumnModel;
     private JDialog petJDialog;
     private int lastSelectedRow = -1;
-    private int lastSelectedColumn = -1;
+    private int lastSelectedColumn = 2;
+    private boolean isEditing = false;
 }

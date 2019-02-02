@@ -51,7 +51,6 @@ public class ClientTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
-        System.out.println("getValueAt");
         Client client = (Client) clientData.get(row);
 
         Object result = null;
@@ -85,12 +84,14 @@ public class ClientTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int row, int col) {
+        if (col == 0) {
+            return false;
+        }
         return isCellEditable;
     }
 
     @Override
     public void setValueAt(Object value, int row, int col) {
-        System.out.println("setValueAt");
         Client client = (Client) clientData.get(row);
 
         if (client.getCodi_id() == null) { // INSERT
@@ -118,7 +119,7 @@ public class ClientTableModel extends AbstractTableModel {
 
                 cbll.insertClient(client);
             } catch (Exception ex) {
-                System.out.println("No s'ha pogut inserir el client.");
+                System.out.println("No s'ha pogut inserir el client. ERROR: " + ex.getMessage());
             }
         } else { // UPDATE
             try {
@@ -143,7 +144,7 @@ public class ClientTableModel extends AbstractTableModel {
                 ClientBLL cbll = new ClientBLL();
                 cbll.updateClient(client);
             } catch (Exception ex) {
-                System.out.println("No s'ha pogut actualitzar el client.");
+                System.out.println("No s'ha pogut actualitzar el client. ERROR: " + ex.getMessage());
             }
         }
         fireTableCellUpdated(row, col);

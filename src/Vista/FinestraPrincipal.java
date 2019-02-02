@@ -138,7 +138,7 @@ public class FinestraPrincipal extends javax.swing.JFrame {
 
     public void showInfoDialog() {
         JOptionPane.showMessageDialog(this,
-                "No pots obrir una opció si ja roman oberta d'altra.", "Informació",
+                "No pots obrir una nova finestra si ja roman oberta altra.", "Informació",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 

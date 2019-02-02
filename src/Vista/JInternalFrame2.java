@@ -191,7 +191,7 @@ public class JInternalFrame2 extends JInternalFrame {
     private void addClientButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addClientButtonActionPerformed
         if (isEditing) {
             JOptionPane.showMessageDialog(this,
-                    "No pots afegir un client mentre estàs editant una cel.la.", "Informació",
+                    "No pots afegir un client mentre s'està editant una cel.la.", "Informació",
                     JOptionPane.INFORMATION_MESSAGE);
         } else {
             Client c = new Client();
@@ -202,21 +202,14 @@ public class JInternalFrame2 extends JInternalFrame {
             c.setN_de_portal("");
 
             miModelo.addClient(c, lastSelectedRow);
-            if (lastSelectedColumn != -1) {
-                miModelo.performSearch(lastSelectedColumn, "");
-            }
-
-            buscaJTextField.setText("");
-
-            // Borrem la selecció de l'últim registre:
-            lastSelectedRow = -1;
+            returnInitialState();
         }
     }//GEN-LAST:event_addClientButtonActionPerformed
 
     private void deleteClientButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteClientButtonActionPerformed
         if (isEditing) {
             JOptionPane.showMessageDialog(this,
-                    "No pots borrar un client mentre estàs editant una cel.la.", "Informació",
+                    "No pots eliminar un client mentre estàs editant una cel.la.", "Informació",
                     JOptionPane.INFORMATION_MESSAGE);
         } else {
             if (lastSelectedRow != -1) {
@@ -229,17 +222,7 @@ public class JInternalFrame2 extends JInternalFrame {
 
                 if (selection == JOptionPane.YES_OPTION) {
                     miModelo.removeRow(lastSelectedRow);
-
-                    // Açò ens permetrà desplaçar-nos a la nova columna polsada i
-                    // carregar de nou totes les dades des de cero per poder iniciar
-                    // una nova búsqueda:
-                    if (lastSelectedColumn != -1) {
-                        miModelo.performSearch(lastSelectedColumn, "");
-                    }
-                    buscaJTextField.setText("");
-
-                    // Borrem la selecció de l'últim registre:
-                    lastSelectedRow = -1;
+                    returnInitialState();
                 }
             } else {
                 JOptionPane.showMessageDialog(this,
@@ -254,8 +237,26 @@ public class JInternalFrame2 extends JInternalFrame {
         //miModelo.updateData(buscaJTextField.getText());
 
         // Alternative 2:
-        lastSelectedRow = -1;
-        miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
+        if (isEditing) {
+            int length = buscaJTextField.getText().length();
+
+            // Si hi havia text al buscador abans d'introduïr el nou caràcter,
+            // no deixarem afegir-ne més, però el text anterior es mantindrà:
+            if (length > 1) {
+                buscaJTextField.setText(buscaJTextField.getText().substring(0, length - 1));
+                // Si en canvi al buscador sols hi ha un caràcter (l'acabat
+                // d'introduïr), borrarem el contingut del buscador per complet:
+            } else {
+                buscaJTextField.setText("");
+            }
+
+            JOptionPane.showMessageDialog(this,
+                    "No pots realitzar una búsqueda mentre estàs editant una cel.la.", "Informació",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            lastSelectedRow = -1;
+            miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
+        }
     }//GEN-LAST:event_buscaJTextFieldKeyReleased
 
     private void clientJTableFormMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clientJTableFormMousePressed
@@ -307,6 +308,20 @@ public class JInternalFrame2 extends JInternalFrame {
 
             tableColumnModel.getColumn(i).setCellRenderer(renderer);
         }
+    }
+
+    public void returnInitialState() {
+        // Açò ens permetrà desplaçar-nos a la nova columna polsada i
+        // carregar de nou totes les dades des de cero per poder iniciar
+        // una nova búsqueda:
+        if (lastSelectedColumn != -1) {
+            miModelo.performSearch(lastSelectedColumn, "");
+        }
+
+        buscaJTextField.setText("");
+
+        // Borrem la selecció de l'últim registre:
+        lastSelectedRow = -1;
     }
 
     /**

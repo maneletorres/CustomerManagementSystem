@@ -121,18 +121,21 @@ public class ClientDAO extends Connexio {
             String columnToSearch = "";
             switch (selectedColumn) {
                 case 0:
-                    columnToSearch = "dni";
+                    columnToSearch = "codi_id";
                     break;
                 case 1:
-                    columnToSearch = "nom";
+                    columnToSearch = "dni";
                     break;
                 case 2:
-                    columnToSearch = "carrer";
+                    columnToSearch = "nom";
                     break;
                 case 3:
-                    columnToSearch = "codi_postal";
+                    columnToSearch = "carrer";
                     break;
                 case 4:
+                    columnToSearch = "codi_postal";
+                    break;
+                case 5:
                     columnToSearch = "n_de_portal";
                     break;
             }
