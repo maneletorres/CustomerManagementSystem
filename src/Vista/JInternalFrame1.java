@@ -41,8 +41,8 @@ public class JInternalFrame1 extends JInternalFrame {
         modeloOrdenado = new TableSorter(miModelo);
         renderer = new DefaultTableCellRenderer();
         clientJTableForm = new javax.swing.JTable();
-        JTableHeader header2 = clientJTableForm.getTableHeader();
-        modeloOrdenado.setTableHeader(header2);
+        JTableHeader header = clientJTableForm.getTableHeader();
+        modeloOrdenado.setTableHeader(header);
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -77,6 +77,7 @@ public class JInternalFrame1 extends JInternalFrame {
         });
 
         clientJTableForm.setModel(modeloOrdenado);
+        tableColumnModel = clientJTableForm.getColumnModel();
         clientJTableForm.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         clientJTableForm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -113,7 +114,7 @@ public class JInternalFrame1 extends JInternalFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGap(20, 20, 20)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -121,20 +122,20 @@ public class JInternalFrame1 extends JInternalFrame {
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addGap(18, 18, 18)
-                        .addComponent(codiJTextField))
+                        .addComponent(codiJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addGap(18, 18, 18)
-                        .addComponent(nomJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(39, 39, 39)
+                        .addComponent(nomJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
                     .addComponent(jLabel4))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(carrerJTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE)
-                    .addComponent(dniJTextField, javax.swing.GroupLayout.Alignment.LEADING))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 100, Short.MAX_VALUE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(carrerJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                    .addComponent(dniJTextField))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6)
                     .addComponent(jLabel7))
@@ -272,8 +273,6 @@ public class JInternalFrame1 extends JInternalFrame {
 
             if (selection == JOptionPane.YES_OPTION) {
                 miModelo.removeRow(lastSelectedRow);
-
-                removeClientSelection();
                 deleteForm();
             }
         } else {
@@ -284,7 +283,6 @@ public class JInternalFrame1 extends JInternalFrame {
     }//GEN-LAST:event_deleteClientButtonActionPerformed
 
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
-        removeClientSelection();
         deleteForm();
     }//GEN-LAST:event_resetButtonActionPerformed
 
@@ -294,48 +292,41 @@ public class JInternalFrame1 extends JInternalFrame {
 
         // Alternative 2:
         lastSelectedRow = -1;
-        int selectedColumn = clientJTableForm.getSelectedColumn();
-        if (selectedColumn != -1 && lastSelectedColumn == -1) {
-            miModelo.performSearch(selectedColumn, buscaJTextField.getText());
-            lastSelectedColumn = selectedColumn;
-        } else if (lastSelectedColumn != -1) {
-            if (selectedColumn != -1 && selectedColumn != lastSelectedColumn) {
-                miModelo.performSearch(selectedColumn, buscaJTextField.getText());
-                lastSelectedColumn = selectedColumn;
-            } else {
-                miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
-            }
-        }
+        miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
     }//GEN-LAST:event_buscaJTextFieldKeyReleased
 
     private void clientJTableFormMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clientJTableFormMouseClicked
         int selectedRow = clientJTableForm.getSelectedRow();
+        int selectedColumn = clientJTableForm.getSelectedColumn();
+
+        // Si polsem sobre una fila diferent a la última fila polsada...:
         if (selectedRow != lastSelectedRow) {
+            // ... la última fila polsada serà la fila que acabem de polsar.
             lastSelectedRow = selectedRow;
+
+            // Omplim el formulari amb la informació del registre que hem polsat:
+            fillForm((Client) miModelo.clientData.get(lastSelectedRow));
         }
 
-        if (clientJTableForm.getSelectedColumn() != lastSelectedColumn) {
-            lastSelectedColumn = clientJTableForm.getSelectedColumn();
+        // Si polsem cobre una columna diferent a la última columna polsada...:
+        if (selectedColumn != lastSelectedColumn) {
+            // ... la última columna polsada serà la columna que acabem de polsar.
+            lastSelectedColumn = selectedColumn;
+
+            // Açò ens permetrà desplaçar-nos a la nova columna polsada i
+            // carregar de nou totes les dades des de cero per poder iniciar
+            // una nova búsqueda:
             miModelo.performSearch(lastSelectedColumn, "");
             buscaJTextField.setText("");
+
+            // Modifiquem el color del fons de les columnes segons quina estigui
+            // seleccionada:
+            paintColumns(selectedColumn);
         }
 
-        // Mantenim el focus sobre el registre corresponent:
+        // Mantenim el focus sobre el registre seleccionat:
         clientJTableForm.requestFocus();
-        clientJTableForm.changeSelection(selectedRow, lastSelectedColumn, false, false);
-
-        renderer = new DefaultTableCellRenderer();
-        renderer.setBackground(Color.WHITE);
-        TableColumnModel tableColumnModel = clientJTableForm.getColumnModel();
-        for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
-            tableColumnModel.getColumn(i).setCellRenderer(renderer);
-        }
-
-        renderer = new DefaultTableCellRenderer();
-        renderer.setBackground(Color.LIGHT_GRAY);
-        clientJTableForm.getColumnModel().getColumn(lastSelectedColumn).setCellRenderer(renderer);
-
-        fillForm((Client) miModelo.clientData.get(lastSelectedRow));
+        clientJTableForm.changeSelection(selectedRow, selectedColumn, false, false);
     }//GEN-LAST:event_clientJTableFormMouseClicked
 
     public void fillForm(Client c) {
@@ -359,10 +350,23 @@ public class JInternalFrame1 extends JInternalFrame {
         if (lastSelectedColumn != -1) {
             miModelo.performSearch(lastSelectedColumn, "");
         }
+
+        // Borrem la selecció de l'últim registre:
+        lastSelectedRow = -1;
     }
 
-    public void removeClientSelection() {
-        lastSelectedRow = -1;
+    public void paintColumns(int selectedColumn) {
+        for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
+            renderer = new DefaultTableCellRenderer();
+
+            if (i == selectedColumn) {
+                renderer.setBackground(Color.LIGHT_GRAY);
+            } else {
+                renderer.setBackground(Color.WHITE);
+            }
+
+            tableColumnModel.getColumn(i).setCellRenderer(renderer);
+        }
     }
 
     /**
@@ -452,8 +456,9 @@ public class JInternalFrame1 extends JInternalFrame {
     private javax.swing.JButton saveDataButton;
     // End of variables declaration//GEN-END:variables
     private ClientTableModel miModelo;
+    private TableColumnModel tableColumnModel;
     private DefaultTableCellRenderer renderer;
     private TableSorter modeloOrdenado;
     private int lastSelectedRow = -1;
-    private int lastSelectedColumn = 1;
+    private int lastSelectedColumn = 2;
 }
