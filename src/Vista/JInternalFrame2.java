@@ -7,7 +7,6 @@ import javax.swing.JOptionPane;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
 /**
@@ -54,10 +53,10 @@ public class JInternalFrame2 extends JInternalFrame {
         deleteClientButton = new javax.swing.JButton();
         jScrollPane8 = new javax.swing.JScrollPane();
         miModelo = new Vista.ClientTableModel(true);
-        modeloOrdenado = new TableSorter(miModelo);
+        //modeloOrdenado = new TableSorter(miModelo);
         clientJTableForm = new javax.swing.JTable();
-        JTableHeader header2 = clientJTableForm.getTableHeader();
-        modeloOrdenado.setTableHeader(header2);
+        //JTableHeader header2 = clientJTableForm.getTableHeader();
+        //modeloOrdenado.setTableHeader(header2);
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         buscaJTextField = new javax.swing.JTextField();
@@ -78,9 +77,8 @@ public class JInternalFrame2 extends JInternalFrame {
             }
         });
 
-        clientJTableForm.setAutoCreateRowSorter(true);
         tableColumnModel = clientJTableForm.getColumnModel();
-        clientJTableForm.setModel(modeloOrdenado);
+        clientJTableForm.setModel(miModelo);
         clientJTableForm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 clientJTableFormMouseClicked(evt);
@@ -366,7 +364,7 @@ public class JInternalFrame2 extends JInternalFrame {
     // End of variables declaration//GEN-END:variables
     private ClientTableModel miModelo;
     private DefaultTableCellRenderer renderer;
-    private TableSorter modeloOrdenado;
+    //private TableSorter modeloOrdenado;
     private TableColumnModel tableColumnModel;
     private int lastSelectedRow = -1;
     private int lastSelectedColumn = 2;

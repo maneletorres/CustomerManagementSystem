@@ -17,7 +17,6 @@ import javax.swing.JTable;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
 /**
@@ -65,10 +64,10 @@ public class JInternalFrame3 extends JInternalFrame {
         deleteClientButton = new javax.swing.JButton();
         jScrollPane8 = new javax.swing.JScrollPane();
         miModelo = new Vista.ClientTableModel(true);
-        modeloOrdenado = new TableSorter(miModelo);
+        //modeloOrdenado = new TableSorter(miModelo);
         clientJTableForm = new javax.swing.JTable();
-        JTableHeader header2 = clientJTableForm.getTableHeader();
-        modeloOrdenado.setTableHeader(header2);
+        //JTableHeader header2 = clientJTableForm.getTableHeader();
+        //modeloOrdenado.setTableHeader(header2);
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -105,7 +104,7 @@ public class JInternalFrame3 extends JInternalFrame {
             }
         });
 
-        clientJTableForm.setModel(modeloOrdenado);
+        clientJTableForm.setModel(miModelo);
         tableColumnModel = clientJTableForm.getColumnModel();
         clientJTableForm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -323,7 +322,7 @@ public class JInternalFrame3 extends JInternalFrame {
             c.setN_de_portal(nPortalJTextField.getText());
 
             miModelo.addClient(c, lastSelectedRow);
-            deleteForm();
+            deleteAll();
         }
     }//GEN-LAST:event_saveDataButtonActionPerformed
 
@@ -343,7 +342,7 @@ public class JInternalFrame3 extends JInternalFrame {
 
                 if (selection == JOptionPane.YES_OPTION) {
                     miModelo.removeRow(lastSelectedRow);
-                    deleteForm();
+                    deleteAll();
                 }
             } else {
                 JOptionPane.showMessageDialog(this,
@@ -359,7 +358,7 @@ public class JInternalFrame3 extends JInternalFrame {
                     "No pots resetejar mentre estàs editant una cel.la.", "Informació",
                     JOptionPane.INFORMATION_MESSAGE);
         } else {
-            deleteForm();
+            deleteAll();
         }
     }//GEN-LAST:event_resetButtonActionPerformed
 
@@ -474,8 +473,7 @@ public class JInternalFrame3 extends JInternalFrame {
                     "No pots realitzar una búsqueda mentre estàs editant una cel.la.", "Informació",
                     JOptionPane.INFORMATION_MESSAGE);
         } else {
-            lastSelectedRow = -1;
-            miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
+            deleteForm();
         }
     }//GEN-LAST:event_buscaJTextFieldKeyReleased
 
@@ -496,7 +494,6 @@ public class JInternalFrame3 extends JInternalFrame {
     }
 
     public void deleteForm() {
-        buscaJTextField.setText("");
         codiJTextField.setText("");
         dniJTextField.setText("");
         codiPostalJTextField.setText("");
@@ -505,12 +502,19 @@ public class JInternalFrame3 extends JInternalFrame {
         nPortalJTextField.setText("");
         animaletJTextField.setText("");
 
+        // Borrem la selecció de l'últim registre:
+        lastSelectedRow = -1;
+
+        miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
+    }
+
+    public void deleteAll() {
+        buscaJTextField.setText("");
+        deleteForm();
+
         if (lastSelectedColumn != -1) {
             miModelo.performSearch(lastSelectedColumn, "");
         }
-
-        // Borrem la selecció de l'últim registre:
-        lastSelectedRow = -1;
     }
 
     public void paintColumns(int selectedColumn) {
@@ -618,7 +622,7 @@ public class JInternalFrame3 extends JInternalFrame {
     // End of variables declaration//GEN-END:variables
     private ClientTableModel miModelo;
     private DefaultTableCellRenderer renderer;
-    private TableSorter modeloOrdenado;
+    //private TableSorter modeloOrdenado;
     private TableColumnModel tableColumnModel;
     private JDialog petJDialog;
     private int lastSelectedRow = -1;

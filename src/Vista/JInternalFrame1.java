@@ -5,7 +5,6 @@ import java.awt.Color;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
 /**
@@ -38,11 +37,11 @@ public class JInternalFrame1 extends JInternalFrame {
         deleteClientButton = new javax.swing.JButton();
         jScrollPane8 = new javax.swing.JScrollPane();
         miModelo = new Vista.ClientTableModel(false);
-        modeloOrdenado = new TableSorter(miModelo);
+        //modeloOrdenado = new TableSorter(miModelo);
         renderer = new DefaultTableCellRenderer();
         clientJTableForm = new javax.swing.JTable();
-        JTableHeader header = clientJTableForm.getTableHeader();
-        modeloOrdenado.setTableHeader(header);
+        //JTableHeader header = clientJTableForm.getTableHeader();
+        //modeloOrdenado.setTableHeader(header);
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -76,7 +75,7 @@ public class JInternalFrame1 extends JInternalFrame {
             }
         });
 
-        clientJTableForm.setModel(modeloOrdenado);
+        clientJTableForm.setModel(miModelo);
         tableColumnModel = clientJTableForm.getColumnModel();
         clientJTableForm.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         clientJTableForm.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -259,7 +258,7 @@ public class JInternalFrame1 extends JInternalFrame {
         c.setN_de_portal(nPortalJTextField.getText());
 
         miModelo.addClient(c, lastSelectedRow);
-        deleteForm();
+        deleteAll();
     }//GEN-LAST:event_saveDataButtonActionPerformed
 
     private void deleteClientButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteClientButtonActionPerformed
@@ -273,7 +272,7 @@ public class JInternalFrame1 extends JInternalFrame {
 
             if (selection == JOptionPane.YES_OPTION) {
                 miModelo.removeRow(lastSelectedRow);
-                deleteForm();
+                deleteAll();
             }
         } else {
             JOptionPane.showMessageDialog(this,
@@ -283,7 +282,7 @@ public class JInternalFrame1 extends JInternalFrame {
     }//GEN-LAST:event_deleteClientButtonActionPerformed
 
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
-        deleteForm();
+        deleteAll();
     }//GEN-LAST:event_resetButtonActionPerformed
 
     private void buscaJTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaJTextFieldKeyReleased
@@ -291,8 +290,7 @@ public class JInternalFrame1 extends JInternalFrame {
         //miModelo.updateData(buscaJTextField.getText());
 
         // Alternative 2:
-        lastSelectedRow = -1;
-        miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
+        deleteForm();
     }//GEN-LAST:event_buscaJTextFieldKeyReleased
 
     private void clientJTableFormMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clientJTableFormMouseClicked
@@ -339,7 +337,6 @@ public class JInternalFrame1 extends JInternalFrame {
     }
 
     public void deleteForm() {
-        buscaJTextField.setText("");
         codiJTextField.setText("");
         dniJTextField.setText("");
         codiPostalJTextField.setText("");
@@ -347,12 +344,19 @@ public class JInternalFrame1 extends JInternalFrame {
         carrerJTextField.setText("");
         nPortalJTextField.setText("");
 
+        // Borrem la selecció de l'últim registre:
+        lastSelectedRow = -1;
+
+        miModelo.performSearch(lastSelectedColumn, buscaJTextField.getText());
+    }
+
+    public void deleteAll() {
+        buscaJTextField.setText("");
+        deleteForm();
+
         if (lastSelectedColumn != -1) {
             miModelo.performSearch(lastSelectedColumn, "");
         }
-
-        // Borrem la selecció de l'últim registre:
-        lastSelectedRow = -1;
     }
 
     public void paintColumns(int selectedColumn) {
@@ -458,7 +462,7 @@ public class JInternalFrame1 extends JInternalFrame {
     private ClientTableModel miModelo;
     private TableColumnModel tableColumnModel;
     private DefaultTableCellRenderer renderer;
-    private TableSorter modeloOrdenado;
+    //private TableSorter modeloOrdenado;
     private int lastSelectedRow = -1;
     private int lastSelectedColumn = 2;
 }
